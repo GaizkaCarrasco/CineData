@@ -3,7 +3,7 @@ from bson import ObjectId
 from app.database import users_collection
 from app.schemas import UserCreate, UserLogin, UserOut
 from app.auth import hash_password, verify_password, create_access_token
-from app.auth import get_current_user
+from app.auth import get_current_user, oauth2_scheme
 from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -61,10 +61,18 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     }
 
 @router.get("/me")
-def get_me(current_user: dict = Depends(get_current_user)):
+async def get_me(current_user: dict = Depends(get_current_user)):
     return {
-        "id": str(current_user["_id"]),
+        "id": current_user.get("id") or str(current_user.get("_id")),
         "username": current_user["username"],
         "email": current_user["email"],
         "role": current_user["role"]
     }
+
+@router.post("/logout")
+async def logout(current_user: UserOut = Depends(get_current_user), token: str = Depends(oauth2_scheme)):
+    from app.database import revoked_tokens_collection
+
+    await revoked_tokens_collection.insert_one({"token": token})
+
+    return {"message": "Logout successful"}

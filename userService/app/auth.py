@@ -6,6 +6,7 @@ from jose import jwt, JWTError
 from passlib.hash import pbkdf2_sha256
 from passlib.context import CryptContext
 from bson import ObjectId
+from app.database import revoked_tokens_collection
 
 # Use PBKDF2-SHA256 for password hashing: it doesn't have bcrypt's
 # 72-byte input limit and is widely supported. If you prefer bcrypt
@@ -40,6 +41,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+    # Check whether the token has been revoked
+    if await is_token_revoked(token):
+        raise HTTPException(status_code=401, detail="Token has been revoked")
+
     user_id = payload.get("sub") or payload.get("user_id")
     if not user_id:
         raise HTTPException(status_code=401, detail="Invalid token payload")
@@ -59,3 +64,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     # remove sensitive fields
     user.pop("password_hash", None)
     return user
+
+async def is_token_revoked(token: str) -> bool:
+    return await revoked_tokens_collection.find_one({"token": token}) is not None
