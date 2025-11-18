@@ -1,8 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from bson import ObjectId
 from app.database import users_collection
 from app.schemas import UserCreate, UserLogin, UserOut
 from app.auth import hash_password, verify_password, create_access_token
+from app.auth import get_current_user
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -39,15 +41,30 @@ async def register_user(user: UserCreate):
 
 
 @router.post("/login")
-async def login(user: UserLogin):
-    db_user = await users_collection.find_one({"email": user.email})
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    # Swagger ALWAYS sends "username", so we treat it as the email
+    email = form_data.username
+    password = form_data.password
 
-    if not db_user:
-        raise HTTPException(status_code=400, detail="Credenciales incorrectas")
+    user = await users_collection.find_one({"email": email})
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    if not verify_password(user.password, db_user["password_hash"]):
-        raise HTTPException(status_code=400, detail="Credenciales incorrectas")
+    if not verify_password(password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    token = create_access_token({"sub": str(db_user["_id"])})
+    token = create_access_token({"sub": str(user["_id"]), "role": user["role"]})
 
-    return {"access_token": token, "token_type": "bearer"}
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
+
+@router.get("/me")
+def get_me(current_user: dict = Depends(get_current_user)):
+    return {
+        "id": str(current_user["_id"]),
+        "username": current_user["username"],
+        "email": current_user["email"],
+        "role": current_user["role"]
+    }
