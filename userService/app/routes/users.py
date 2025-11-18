@@ -42,23 +42,23 @@ async def register_user(user: UserCreate):
 
 @router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    # Swagger ALWAYS sends "username", so we treat it as the email
-    email = form_data.username
+    # OAuth2 form uses the field "username" — accept email or username here
+    login_value = form_data.username
     password = form_data.password
 
-    user = await users_collection.find_one({"email": email})
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+    user = await users_collection.find_one({
+        "$or": [
+            {"email": login_value},
+            {"username": login_value}
+        ]
+    })
 
-    if not verify_password(password, user["password_hash"]):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+    if not user or not verify_password(password, user.get("password_hash")):
+        raise HTTPException(status_code=401, detail="Invalid email/username or password")
 
     token = create_access_token({"sub": str(user["_id"]), "role": user["role"]})
 
-    return {
-        "access_token": token,
-        "token_type": "bearer"
-    }
+    return {"access_token": token, "token_type": "bearer"}
 
 @router.get("/me")
 async def get_me(current_user: dict = Depends(get_current_user)):
