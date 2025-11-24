@@ -1,0 +1,145 @@
+/* #root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+} */
+
+
+/* === Reset básico === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+/* === Fondo general === */
+body {
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* === Contenedor del login === */
+.login-container {
+  background: #ffffff;
+  width: 360px;
+  padding: 32px;
+  border-radius: 14px;
+  box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.6s ease;
+}
+
+/* === Título === */
+.login-container h2 {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #2a2a2a;
+}
+
+/* === Inputs === */
+.login-container input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0 18px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: 0.2s;
+  font-size: 15px;
+}
+
+.login-container input:focus {
+  border-color: #2a5298;
+  outline: none;
+  box-shadow: 0 0 6px rgba(42, 82, 152, 0.3);
+}
+
+/* === Botón === */
+.login-container button {
+  width: 100%;
+  padding: 12px;
+  background: #2a5298;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: 0.25s;
+}
+
+.login-container button:hover {
+  background: #1e3c72;
+  transform: translateY(-1px);
+}
+
+/* === Mensaje de error o éxito === */
+.alert {
+  margin-top: 14px;
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.alert.error {
+  background: #ffe1e1;
+  color: #b40000;
+}
+
+.alert.success {
+  background: #e6ffe6;
+  color: #0b7a0b;
+}
+
+/* === Animación === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

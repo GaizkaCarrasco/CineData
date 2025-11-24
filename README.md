@@ -24,3 +24,38 @@ pip install python-multipart
 
 # Ejecución del servicio
 1. uvicorn app.main:app --reload
+
+# Cómo iniciar el Frontend
+# Requisitos: Debes tener instalado:
+
+Node.js y NPM
+
+# Ubicación del proyecto
+
+El frontend se encuentra en:
+
+frontend/
+
+# Ejecutar por primera vez
+
+# Si acabas de clonar el proyecto o nunca has instalado dependencias:
+
+cd frontend
+npm install
+
+# Iniciar el servidor de desarrollo
+
+# Para arrancar el frontend:
+
+cd frontend
+npm run dev
+
+Esto iniciará la aplicación en:
+
+http://localhost:5173/
+
+# Detener el servidor
+
+En la terminal donde se esté ejecutando, presiona:
+
+Ctrl + C

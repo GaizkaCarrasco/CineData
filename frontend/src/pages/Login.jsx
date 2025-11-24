@@ -1,0 +1,79 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import "../App.css";
+
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      // OAuth2PasswordRequestForm on the backend expects form-encoded fields
+      const params = new URLSearchParams();
+      params.append("username", email); // backend expects 'username' field
+      params.append("password", password);
+
+      const response = await fetch("http://127.0.0.1:8000/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params.toString(),
+      });
+
+      if (!response.ok) {
+        throw new Error("Credenciales incorrectas");
+      }
+
+      const data = await response.json();
+
+      // Guardar token
+      localStorage.setItem("token", data.access_token);
+
+      alert("Login correcto");
+      window.location.href = "/dashboard";
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div className="login-container">
+      <h2>Iniciar sesión</h2>
+
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Contraseña"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+
+        <button type="submit">Iniciar Sesión</button>
+      </form>
+
+      {error && (
+        <div className="alert error">{error}</div>
+      )}
+
+      <div style={{ marginTop: 12 }}>
+        <Link to="/register">
+          <button style={{ padding: '8px 16px', cursor: 'pointer' }}>Registrarse</button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export default Login;
