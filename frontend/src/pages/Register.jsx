@@ -9,6 +9,9 @@ export default function Register() {
     password: "",
   });
 
+  // checkbox para indicar si se trata de un admin
+  const [isAdmin, setIsAdmin] = useState(false);
+
   const navigate = useNavigate();
 
   const [message, setMessage] = useState(null);
@@ -25,10 +28,22 @@ export default function Register() {
     setMessage(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/users/register", {
+      // Elegir endpoint según checkbox
+      const url = isAdmin
+        ? "http://127.0.0.1:8000/admin/open-create-admin"
+        : "http://127.0.0.1:8000/users/register";
+
+      // Payload: enviar sólo username/email/password (sin isAdmin)
+      const payload = {
+        username: form.username,
+        email: form.email,
+        password: form.password,
+      };
+
+      const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -76,6 +91,16 @@ export default function Register() {
           onChange={handleChange}
           required
         />
+
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={isAdmin}
+            onChange={(e) => setIsAdmin(e.target.checked)}
+            aria-label="Soy admin"
+          />
+          <span className="checkbox-label">Soy admin</span>
+        </label>
 
         <button type="submit">Registrarse</button>
       </form>

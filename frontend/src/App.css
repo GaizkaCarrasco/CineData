@@ -143,3 +143,41 @@ body {
     transform: translateY(0);
   }
 }
+
+/* === Checkbox row for register page === */
+
+/* === Checkbox row for register page (consolidated & aligned) === */
+.checkbox-row {
+  display: flex;
+  align-items: center; /* vertical centering */
+  gap: 10px;
+  margin-top: 4px; /* reduce space above (closer to password input) */
+  margin-bottom: 20px; /* increase space below (separate from register button) */
+  font-size: 14px;
+  color: #333;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fbfdff;
+  border: 1px solid rgba(42,82,152,0.08);
+  transition: box-shadow 160ms ease, transform 140ms ease;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #2a5298;
+  margin: 0; /* remove browser default margins */
+  align-self: center;
+}
+
+.checkbox-row:hover {
+  box-shadow: 0 6px 18px rgba(42,82,152,0.08);
+  transform: translateY(-1px);
+}
+
+.checkbox-row .checkbox-label {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+
