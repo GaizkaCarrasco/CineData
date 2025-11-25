@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../App.css";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -32,8 +33,25 @@ function Login() {
       // Guardar token
       localStorage.setItem("token", data.access_token);
 
+      // Comprobar role del usuario y redirigir según corresponda
+      try {
+        const meRes = await fetch("http://127.0.0.1:8000/users/me", {
+          headers: { Authorization: `Bearer ${data.access_token}` },
+        });
+        if (meRes.ok) {
+          const me = await meRes.json();
+          if (me.role === "admin") {
+            // ir a vista de administración
+            navigate("/admin/users");
+            return;
+          }
+        }
+      } catch (err) {
+        // si falla la comprobación, caerá a dashboard
+      }
+
       alert("Login correcto");
-      window.location.href = "/dashboard";
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     }

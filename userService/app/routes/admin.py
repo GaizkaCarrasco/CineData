@@ -56,3 +56,35 @@ async def open_create_admin_account(data: UserCreate):
         "email": data.email,
         "role": "admin"
     }
+
+
+# Lista de usuarios (solo accesible para administradores)
+@router.get("/users")
+async def list_users(current_admin: dict = Depends(require_role("admin"))):
+    """Return only non-admin users.
+
+    The frontend AdminUsers view should list regular users; admins
+    are excluded from this listing.
+    """
+    users = []
+    # Query only users whose role is not 'admin'
+    cursor = users_collection.find({"role": {"$ne": "admin"}})
+    async for u in cursor:
+        users.append({
+            "_id": str(u.get("_id")),
+            "username": u.get("username"),
+            "email": u.get("email"),
+            "role": u.get("role"),
+        })
+
+    return users
+
+@router.get("/users")
+async def list_non_admin_users(current_admin=Depends(require_role("admin"))):
+    users = await users_collection.find({"role": {"$ne": "admin"}}).to_list(None)
+
+    for u in users:
+        u["_id"] = str(u["_id"])
+
+    return users
+
