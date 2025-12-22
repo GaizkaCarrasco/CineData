@@ -78,12 +78,12 @@ function Login() {
           required
         />
 
+        {error && (
+          <div className="alert error">{error}</div>
+        )}
+
         <button type="submit">Iniciar Sesión</button>
       </form>
-
-      {error && (
-        <div className="alert error">{error}</div>
-      )}
 
       <div style={{ marginTop: 12 }}>
         <Link to="/register">

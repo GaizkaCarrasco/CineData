@@ -1,3 +1,5 @@
+import LogoutButton from "../components/LogoutButton";
+
 function Dashboard() {
   const token = localStorage.getItem("token");
 
@@ -5,7 +7,12 @@ function Dashboard() {
     return <p>No estás autenticado</p>;
   }
 
-  return <h2>Bienvenido al dashboard privado 🚀</h2>;
+  return (
+    <div style={{ padding: "32px", textAlign: "center" }}>
+      <LogoutButton />
+      <h2>Bienvenido al dashboard privado 🚀</h2>
+    </div>
+  );
 }
 
 export default Dashboard;

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import LogoutButton from "../components/LogoutButton";
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -29,22 +30,35 @@ export default function AdminUsers() {
 
   return (
     <div style={{ maxWidth: 600, margin: "40px auto" }}>
-      <h2>Usuarios registrados</h2>
+      <LogoutButton />
+      <h2 style={{ textAlign: "center", marginBottom: 24 }}>Usuarios registrados</h2>
 
       {users.length === 0 && <p>No hay usuarios registrados (o todos son admins)</p>}
 
-      <ul style={{ marginTop: 20 }}>
+      <ul
+        style={{
+          marginTop: 20,
+          listStyle: "none",
+          padding: 0,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          maxHeight: 420,
+          overflowY: "auto",
+          paddingRight: 6,
+        }}
+      >
         {users.map((u) => (
           <li
             key={u._id}
             style={{
               padding: "10px",
-              marginBottom: "8px",
               background: "#eee",
               borderRadius: "8px",
+              color: "#111",
             }}
           >
-            <b>{u.username}</b> — {u.email}
+            <b style={{ color: "#000" }}>{u.username}</b> — {u.email}
           </li>
         ))}
       </ul>

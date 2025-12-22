@@ -81,7 +81,7 @@ body {
 .login-container input {
   width: 100%;
   padding: 12px;
-  margin: 10px 0 18px 0;
+  margin: 0 0 12px 0;
   border: 1px solid #ddd;
   border-radius: 8px;
   transition: 0.2s;
@@ -98,6 +98,7 @@ body {
 .login-container button {
   width: 100%;
   padding: 12px;
+  margin-top: 12px;
   background: #2a5298;
   border: none;
   color: white;
@@ -115,11 +116,13 @@ body {
 
 /* === Mensaje de error o éxito === */
 .alert {
-  margin-top: 14px;
+  width: 100%;
+  margin: 12px 0;
   text-align: center;
   padding: 10px;
   border-radius: 8px;
   font-size: 14px;
+  box-sizing: border-box;
 }
 
 .alert.error {
