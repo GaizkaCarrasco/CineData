@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../App.css";
+import Logo from "../components/Logo";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -58,8 +59,10 @@ function Login() {
   };
 
   return (
-    <div className="login-container">
-      <h2>Iniciar sesión</h2>
+    <>
+      <Logo />
+      <div className="login-container">
+        <h2>Iniciar sesión</h2>
 
       <form onSubmit={handleLogin}>
         <input
@@ -90,7 +93,8 @@ function Login() {
           <button style={{ padding: '8px 16px', cursor: 'pointer' }}>Registrarse</button>
         </Link>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

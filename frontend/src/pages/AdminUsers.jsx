@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import LogoutButton from "../components/LogoutButton";
+import Logo from "../components/Logo";
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -60,6 +61,7 @@ export default function AdminUsers() {
 
   return (
     <div style={{ maxWidth: 600, margin: "40px auto" }}>
+      <Logo />
       <LogoutButton />
       <h2 style={{ textAlign: "center", marginBottom: 24 }}>Usuarios registrados</h2>
 

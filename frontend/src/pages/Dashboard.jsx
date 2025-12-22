@@ -1,4 +1,5 @@
 import LogoutButton from "../components/LogoutButton";
+import Logo from "../components/Logo";
 
 function Dashboard() {
   const token = localStorage.getItem("token");
@@ -9,6 +10,7 @@ function Dashboard() {
 
   return (
     <div style={{ padding: "32px", textAlign: "center" }}>
+      <Logo />
       <LogoutButton />
       <h2>Bienvenido al dashboard privado 🚀</h2>
     </div>

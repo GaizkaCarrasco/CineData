@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css"; // Usa el mismo CSS del login
+import Logo from "../components/Logo";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -61,8 +62,10 @@ export default function Register() {
   };
 
   return (
-    <div className="login-container">
-      <h2>Crear cuenta</h2>
+    <>
+      <Logo />
+      <div className="login-container">
+        <h2>Crear cuenta</h2>
 
       <form onSubmit={handleSubmit}>
         <input
@@ -110,6 +113,7 @@ export default function Register() {
           {message.text}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
