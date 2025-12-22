@@ -76,3 +76,21 @@ async def logout(current_user: UserOut = Depends(get_current_user), token: str =
     await revoked_tokens_collection.insert_one({"token": token})
 
     return {"message": "Logout successful"}
+
+@router.delete("/delete/{user_id}")
+async def delete_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    # Solo admins pueden borrar usuarios
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Solo administradores pueden borrar usuarios")
+    
+    # No permitir que un admin se borre a sí mismo
+    if str(current_user.get("_id")) == user_id or current_user.get("id") == user_id:
+        raise HTTPException(status_code=400, detail="No puedes borrarte a ti mismo")
+    
+    try:
+        result = await users_collection.delete_one({"_id": ObjectId(user_id)})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        return {"message": "Usuario borrado correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Error al borrar el usuario")

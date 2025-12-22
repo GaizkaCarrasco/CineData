@@ -26,7 +26,37 @@ export default function AdminUsers() {
       .catch((err) => setError(err.message));
   }, []);
 
+  const handleDelete = async (user_id) => {
+    const token = localStorage.getItem("token");
+    
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/users/delete/${user_id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        alert(err.detail || "Error al borrar usuario");
+        return;
+      }
+
+      // Actualizar la lista de usuarios eliminando el usuario borrado
+      setUsers(users.filter((u) => u._id !== user_id));
+    } catch (err) {
+      alert("Error de conexión");
+    }
+  };
+
   if (error) return <h3 style={{ color: "red" }}>{error}</h3>;
+
+  // Calcular el ancho mínimo basado en "username - email" más largo
+  const longestText = users.length > 0
+    ? Math.max(...users.map((u) => `${u.username} — ${u.email}`.length))
+    : 10;
+  const minWidth = `${longestText * 8.5 + 50}px`; // aprox 8.5px por carácter + espacio para botón
 
   return (
     <div style={{ maxWidth: 600, margin: "40px auto" }}>
@@ -56,9 +86,50 @@ export default function AdminUsers() {
               background: "#eee",
               borderRadius: "8px",
               color: "#111",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              minWidth: minWidth,
             }}
           >
-            <b style={{ color: "#000" }}>{u.username}</b> — {u.email}
+            <span>
+              <b style={{ color: "#000" }}>{u.username}</b> — {u.email}
+            </span>
+            <button
+              onClick={() => {
+                if (confirm(`¿Estás seguro de que quieres borrar a ${u.username}?`)) {
+                  handleDelete(u._id);
+                }
+              }}
+              style={{
+                background: "#42a5f5",
+                color: "#fff",
+                border: "none",
+                borderRadius: "50%",
+                width: 32,
+                height: 32,
+                padding: 0,
+                cursor: "pointer",
+                fontSize: 20,
+                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                lineHeight: 1,
+                letterSpacing: 0,
+                transition: "transform 0.1s ease, box-shadow 0.1s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.1)";
+                e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              ✕
+            </button>
           </li>
         ))}
       </ul>
