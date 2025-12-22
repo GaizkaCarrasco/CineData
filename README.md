@@ -1,61 +1,52 @@
-# CineData
-Proyecto para la asignatura de Web de Datos
+## CineData
+Plataforma sencilla con backend FastAPI y frontend React para gestionar usuarios, login y panel de administración.
 
-# Requisitos previos
-Antes de ejecutar el proyecto asegúrate de tener instalado:
-Python 3.10+
-MongoDB Community Server (modo local)
-MongoDB Compass (opcional, para visualizar los datos)
-pip actualizado
+## Arquitectura
+- Backend: FastAPI (JWT), MongoDB (colección `users`, `revoked_tokens`).
+- Frontend: React + Vite.
+- Auth: login vía `/users/login`, token JWT en localStorage, comprobación de rol; logout revoca token.
 
-# Crear un entorno virtual (solo la primera vez)
-1. Ir al directorio donde está el proyecto
-2. python -m venv venv
+## Flujo principal
+1) Registro (`/users/register`) o creación de admins (`/admin/open-create-admin`).
+2) Login (`/users/login`) devuelve JWT.
+3) Frontend guarda el token y consulta `/users/me` para saber rol.
+4) Usuarios normales acceden a `/dashboard`; admins a `/admin/users` (ruta protegida).
+5) Logout (`/users/logout`) revoca el token y limpia sesión en el cliente.
+6) Admin puede borrar usuarios (`DELETE /users/delete/{user_id}`) desde la lista.
 
-# Activar el entorno virtual
-1. Ir al directorio donde está el proyecto
-2. venv\Scripts\activate
-3. Si aparece un error por permisos, abre PowerShell como administrador y ejecuta:
-3.1. Set-ExecutionPolicy RemoteSigned
-4. Volver a activar el entorno: volver a ejecutar el punto 2.
-5. Una vez activado el entorno descargar las dependencias: 
-pip install fastapi uvicorn motor passlib[bcrypt] python-jose[cryptography] pydantic[email]
-pip install python-multipart
+## Cómo levantar el proyecto
 
-# Ejecución del servicio
-1. uvicorn app.main:app --reload
+### Opción A) Sin Docker (desarrollo local)
+Backend (requiere Python 3.10+, MongoDB local, pip actualizado):
+```powershell
+cd userService
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+El API queda en `http://127.0.0.1:8000` con docs en `/docs`.
 
-# Cómo iniciar el Frontend
-# Requisitos: Debes tener instalado:
-
-Node.js y NPM
-
-# Ubicación del proyecto
-
-El frontend se encuentra en:
-
-frontend/
-
-# Ejecutar por primera vez
-
-# Si acabas de clonar el proyecto o nunca has instalado dependencias:
-
+Frontend (requiere Node.js + npm):
+```powershell
 cd frontend
 npm install
-
-# Iniciar el servidor de desarrollo
-
-# Para arrancar el frontend:
-
-cd frontend
 npm run dev
+```
+La app queda en `http://localhost:5173/`.
 
-Esto iniciará la aplicación en:
+### Opción B) Con Docker (backend + frontend juntos)
+Requiere Docker Desktop activo. Desde la raíz `CineData`:
+```powershell
+docker compose up --build
+```
+Docker construye las imágenes y levanta ambos servicios. Si actualizas dependencias del backend, vuelve a usar `--build`.
 
-http://localhost:5173/
+## Estructura relevante
+- backend: `userService/app` (rutas en `routes/`, auth en `auth.py`, base de datos en `database.py`).
+- frontend: `frontend/src` (páginas en `pages/`, componentes en `components/`).
 
-# Detener el servidor
-
-En la terminal donde se esté ejecutando, presiona:
-
-Ctrl + C
+## Notas rápidas
+- Token JWT se guarda en `localStorage` como `token`.
+- Rutas de admin usan `AdminRoute` para verificar rol antes de renderizar.
+- El logout envía el token a `revoked_tokens` y borra el token local.
