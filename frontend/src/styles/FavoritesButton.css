@@ -1,0 +1,44 @@
+.favorites-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.favorites-btn:hover {
+  border-color: #d1d5db;
+}
+
+.favorites-btn:active {
+  transform: translateY(1px);
+}
+
+.star {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.star.outline {
+  color: #9ca3af; /* gris */
+}
+
+.star.filled {
+  color: #fbbf24; /* amarillo */
+}
+
+.favorites-btn.is-active {
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+}
+
+.label {
+  user-select: none;
+}

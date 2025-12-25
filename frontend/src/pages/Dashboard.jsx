@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import LogoutButton from "../components/LogoutButton";
 import Logo from "../components/Logo";
 import SearchBar from "../components/SearchBar";
+import FavoritesButton from "../components/FavoritesButton";
 import FilterBar from "../components/FilterBar";
 import axios from "axios";
 import "../styles/Movies.css";
@@ -18,6 +19,7 @@ function Dashboard() {
     year: "",
     rating: "",
   });
+  const [favoritesActive, setFavoritesActive] = useState(false);
 
   useEffect(() => {
     if (token) {
@@ -79,6 +81,7 @@ function Dashboard() {
       {/* BLOQUE 1: Navegación/Logo */}
       <header className="movies-topbar">
         <Logo />
+        <FavoritesButton active={favoritesActive} onToggle={() => setFavoritesActive((prev) => !prev)} />
         <SearchBar onSearch={setSearchTerm} />
         <FilterBar onFilterChange={handleFilterChange} movies={peliculas} />
         <LogoutButton />
