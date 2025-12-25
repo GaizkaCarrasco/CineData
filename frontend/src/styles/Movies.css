@@ -10,6 +10,7 @@ html, body {
   display: flex;
   flex-direction: column; /* Alinea los bloques (topbar, heading, grid) uno bajo otro */
   min-height: 100vh;
+  width: 100%;
   padding: 20px;
   max-width: 1280px;
   margin: 0 auto;
@@ -45,12 +46,14 @@ html, body {
 .movies-heading h2 {
   margin: 0 0 4px 0;
   font-size: 28px;
-  color: #0b214a;
+  color: #ffffff;
+  text-align: center;
 }
 
 .movies-heading p {
   margin: 0 0 24px 0;
-  color: #4b5563;
+  color: #e5e7eb;
+  text-align: center;
 }
 
 .error-banner {

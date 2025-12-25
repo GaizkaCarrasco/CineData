@@ -6,7 +6,7 @@ import Logo from "../components/Logo";
 export default function Register() {
   const [form, setForm] = useState({
     username: "",
-    email: "",
+    email: "@gmail.com",
     password: "",
   });
 
@@ -49,7 +49,7 @@ export default function Register() {
 
       if (response.ok) {
         setMessage({ type: "success", text: "Usuario creado correctamente 🚀" });
-        setForm({ username: "", email: "", password: "" });
+        setForm({ username: "", email: "@gmail.com", password: "" });
         // Redirigir al login para iniciar sesión
         setTimeout(() => navigate('/'), 700);
       } else {
