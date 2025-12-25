@@ -4,7 +4,7 @@ import "../App.css";
 import Logo from "../components/Logo";
 
 function Login() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("@gmail.com");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();

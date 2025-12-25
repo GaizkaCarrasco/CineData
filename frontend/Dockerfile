@@ -1,5 +1,6 @@
 # Build
-FROM node:18 AS build
+# Use Node 22 to satisfy Vite requirement (>=20.19)
+FROM node:22 AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
