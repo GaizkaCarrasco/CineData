@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import LogoutButton from "../components/LogoutButton";
 import Logo from "../components/Logo";
+import SearchBar from "../components/SearchBar";
 import axios from "axios";
 import "../styles/Movies.css";
 
@@ -10,6 +11,7 @@ function Dashboard() {
   // Estado para almacenar las películas
   const [peliculas, setPeliculas] = useState([]);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (token) {
@@ -26,6 +28,11 @@ function Dashboard() {
     }
   }, [token]); // Ejecuta este efecto solo cuando el token cambie
 
+  // Filtrar películas según el término de búsqueda (solo en título)
+  const peliculasFiltradas = peliculas.filter((peli) =>
+    peli.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (!token) {
     return <p>No estás autenticado</p>;
   }
@@ -35,6 +42,7 @@ function Dashboard() {
       {/* BLOQUE 1: Navegación/Logo */}
       <header className="movies-topbar">
         <Logo />
+        <SearchBar onSearch={setSearchTerm} />
         <LogoutButton />
       </header>
 
@@ -51,11 +59,11 @@ function Dashboard() {
 
       {error && <div className="error-banner">{error}</div>}
 
-      {peliculas.length === 0 ? (
-        <p className="empty-state">No hay películas disponibles.</p>
+      {peliculasFiltradas.length === 0 ? (
+        <p className="empty-state">{searchTerm ? "No se encontraron películas." : "No hay películas disponibles."}</p>
       ) : (
         <main className="movies-grid">
-          {peliculas.map((peli) => (
+          {peliculasFiltradas.map((peli) => (
             <div key={peli.id} className="movie-card">
               <div className="movie-poster">
                 {peli.image_url ? (

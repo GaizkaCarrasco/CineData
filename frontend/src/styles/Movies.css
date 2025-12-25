@@ -27,6 +27,7 @@ html, body {
   margin-bottom: 40px; /* Espacio generoso para separar de lo que viene abajo */
   position: relative;
   z-index: 10;
+  gap: 20px;
 }
 
 /* Contenedor para futura barra de búsqueda */
