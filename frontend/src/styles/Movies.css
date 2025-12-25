@@ -28,6 +28,7 @@ html, body {
   position: relative;
   z-index: 10;
   gap: 20px;
+  flex-wrap: wrap;
 }
 
 /* Contenedor para futura barra de búsqueda */

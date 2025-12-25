@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import LogoutButton from "../components/LogoutButton";
 import Logo from "../components/Logo";
 import SearchBar from "../components/SearchBar";
+import FilterBar from "../components/FilterBar";
 import axios from "axios";
 import "../styles/Movies.css";
 
@@ -12,6 +13,11 @@ function Dashboard() {
   const [peliculas, setPeliculas] = useState([]);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({
+    genre: "",
+    year: "",
+    rating: "",
+  });
 
   useEffect(() => {
     if (token) {
@@ -29,9 +35,40 @@ function Dashboard() {
   }, [token]); // Ejecuta este efecto solo cuando el token cambie
 
   // Filtrar películas según el término de búsqueda (solo en título)
-  const peliculasFiltradas = peliculas.filter((peli) =>
-    peli.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const peliculasFiltradas = peliculas.filter((peli) => {
+    // Filtro de búsqueda por título
+    if (searchTerm && !peli.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+
+    // Filtro por género
+    if (filters.genre && peli.genre !== filters.genre) {
+      return false;
+    }
+
+    // Filtro por año
+    if (filters.year && peli.year !== parseInt(filters.year)) {
+      return false;
+    }
+
+    // Filtro por valoración (stars >= rating)
+    if (filters.rating) {
+      const minRating = parseInt(filters.rating);
+      const movieRating = parseFloat(peli.stars);
+      if (movieRating < minRating) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  const handleFilterChange = ({ filterType, value }) => {
+    setFilters((prev) => ({
+      ...prev,
+      [filterType]: value,
+    }));
+  };
 
   if (!token) {
     return <p>No estás autenticado</p>;
@@ -43,6 +80,7 @@ function Dashboard() {
       <header className="movies-topbar">
         <Logo />
         <SearchBar onSearch={setSearchTerm} />
+        <FilterBar onFilterChange={handleFilterChange} movies={peliculas} />
         <LogoutButton />
       </header>
 
