@@ -27,7 +27,7 @@ html, body {
   margin-bottom: 24px; /* Espacio generoso para separar de lo que viene abajo */
   position: relative;
   z-index: 10;
-  gap: 50px;
+  gap: 65px;
   flex-wrap: wrap;
 }
 
