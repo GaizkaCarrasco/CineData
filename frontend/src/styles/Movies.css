@@ -249,6 +249,16 @@ body {
   color: #0b214a;
 }
 
+.movie-title-with-star {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.movie-detail-title-section {
+  flex: 1;
+}
+
 .movie-detail-meta {
   margin: 0;
   color: #64748b;
@@ -276,17 +286,51 @@ body {
   border-radius: 10px;
   font-size: 20px;
   font-weight: 700;
-  line-height: 1;
-  padding: 0;
   cursor: pointer;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .movie-detail-close:hover {
   background: #cbd5e1;
   transform: translateY(-1px);
+}
+
+.movie-user-rating {
+  display: flex;
+  gap: 8px;
+}
+
+.movie-star-toggle {
+  border: none;
+  background: none;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  box-shadow: none;
+  transition: transform 0.2s ease, color 0.2s ease;
+  color: #cbd5e0;
+}
+
+.movie-star-toggle:focus,
+.movie-star-toggle:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.movie-star-toggle.filled {
+  color: #f59e0b;
+}
+
+.movie-star-toggle:hover {
+  transform: scale(1.15);
+}
+
+.movie-star-toggle.empty:hover {
+  color: #e2e8f0;
 }
 
 @media (max-width: 900px) {
