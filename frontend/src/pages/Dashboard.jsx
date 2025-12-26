@@ -4,6 +4,7 @@ import Logo from "../components/Logo";
 import SearchBar from "../components/SearchBar";
 import FavoritesButton from "../components/FavoritesButton";
 import FilterBar from "../components/FilterBar";
+import MovieDetailModal from "../components/MovieDetailModal";
 import axios from "axios";
 import "../styles/Movies.css";
 
@@ -20,6 +21,7 @@ function Dashboard() {
     rating: "",
   });
   const [favoritesActive, setFavoritesActive] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
   useEffect(() => {
     if (token) {
@@ -72,6 +74,14 @@ function Dashboard() {
     }));
   };
 
+  const handleMovieClick = (movie) => {
+    setSelectedMovie(movie);
+  };
+
+  const handleCloseDetail = () => {
+    setSelectedMovie(null);
+  };
+
   if (!token) {
     return <p>No estás autenticado</p>;
   }
@@ -105,7 +115,19 @@ function Dashboard() {
       ) : (
         <main className="movies-grid">
           {peliculasFiltradas.map((peli) => (
-            <div key={peli.id} className="movie-card">
+            <div
+              key={peli.id}
+              className="movie-card"
+              onClick={() => handleMovieClick(peli)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleMovieClick(peli);
+                }
+              }}
+            >
               <div className="movie-poster">
                 {peli.image_url ? (
                   <img src={peli.image_url} alt={peli.title} />
@@ -126,6 +148,10 @@ function Dashboard() {
             </div>
           ))}
         </main>
+      )}
+
+      {selectedMovie && (
+        <MovieDetailModal movie={selectedMovie} onClose={handleCloseDetail} />
       )}
     </div>
   );
