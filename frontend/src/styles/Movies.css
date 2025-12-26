@@ -23,12 +23,13 @@ html, body {
   width: 100%;
   display: flex;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 24px; /* Espacio generoso para separar de lo que viene abajo */
   position: relative;
   z-index: 10;
   gap: 65px;
   flex-wrap: wrap;
+  padding-top: 12px;
 }
 
 .movies-topbar > *:first-child {
@@ -37,6 +38,7 @@ html, body {
 
 .movies-topbar > *:last-child {
   margin-left: auto;
+  margin-top: 13px;
 }
 
 .movies-heading h2 {
