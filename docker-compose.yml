@@ -39,9 +39,9 @@ services:
       DB_PORT: 3306
     restart: always
 
-  backend:
+  users:
     build: ./userService
-    container_name: cinedata-backend
+    container_name: cinedata-users
     ports:
       - "8000:8000"
     depends_on:
@@ -56,7 +56,7 @@ services:
     ports:
       - "5173:80"
     depends_on:
-      - backend
+      - users
       - movies
     restart: always
 
