@@ -62,6 +62,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=404, detail="User not found")
 
     user["id"] = str(user["_id"])
+    user["favorites"] = user.get("favorites", [])
     # remove sensitive fields
     user.pop("password_hash", None)
     return user

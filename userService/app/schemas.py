@@ -1,9 +1,10 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
+from pydantic import BaseModel, EmailStr, Field
+from typing import List, Optional
 
 class UserBase(BaseModel):
     username: str
     email: EmailStr
+    favorites: List[int] = Field(default_factory=list)
 
 class UserCreate(UserBase):
     password: str

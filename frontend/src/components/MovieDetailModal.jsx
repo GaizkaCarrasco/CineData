@@ -1,14 +1,7 @@
-import { useState } from "react";
 import "../styles/Movies.css";
 
-function MovieDetailModal({ movie, onClose }) {
-  const [isFavorite, setIsFavorite] = useState(false);
-
+function MovieDetailModal({ movie, onClose, isFavorite = false, onToggleFavorite }) {
   if (!movie) return null;
-
-  const handleStarClick = () => {
-    setIsFavorite(!isFavorite);
-  };
 
   return (
     <div className="movie-detail-backdrop" role="dialog" aria-modal="true" aria-label={`Detalle de ${movie.title}`}>
@@ -29,7 +22,7 @@ function MovieDetailModal({ movie, onClose }) {
                 <h3 className="movie-detail-title">{movie.title}</h3>
                 <button
                   className={`movie-star-toggle ${isFavorite ? "filled" : "empty"}`}
-                  onClick={handleStarClick}
+                  onClick={() => onToggleFavorite?.(movie.id)}
                   aria-label={isFavorite ? "Quitar de favoritos" : "Añadir a favoritos"}
                   title={isFavorite ? "Quitar de favoritos" : "Añadir a favoritos"}
                 >

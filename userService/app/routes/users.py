@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+from typing import List
 from bson import ObjectId
 from app.database import users_collection
 from app.schemas import UserCreate, UserLogin, UserOut
@@ -15,7 +16,8 @@ def user_to_response(user) -> UserOut:
         id=str(user["_id"]),
         username=user["username"],
         email=user["email"],
-        role=user["role"]
+        role=user["role"],
+        favorites=user.get("favorites", [])
     )
 
 
@@ -31,7 +33,8 @@ async def register_user(user: UserCreate):
         "username": user.username,
         "email": user.email,
         "password_hash": hashed_pass,
-        "role": "user"
+        "role": "user",
+        "favorites": []
     }
 
     result = await users_collection.insert_one(new_user)
@@ -66,8 +69,47 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "id": current_user.get("id") or str(current_user.get("_id")),
         "username": current_user["username"],
         "email": current_user["email"],
-        "role": current_user["role"]
+        "role": current_user["role"],
+        "favorites": current_user.get("favorites", [])
     }
+
+
+@router.get("/favorites", response_model=List[int])
+async def list_favorites(current_user: dict = Depends(get_current_user)):
+    # Garantiza que siempre exista el campo favorites
+    favorites = current_user.get("favorites") or []
+    return favorites
+
+
+@router.post("/favorites/{movie_id}")
+async def add_favorite(movie_id: int, current_user: dict = Depends(get_current_user)):
+    user_id = current_user.get("id") or str(current_user.get("_id"))
+    favorites = current_user.get("favorites") or []
+
+    if movie_id in favorites:
+        return {"favorites": favorites, "message": "Ya está en favoritos"}
+
+    favorites.append(movie_id)
+    await users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"favorites": favorites}}
+    )
+
+    return {"favorites": favorites}
+
+
+@router.delete("/favorites/{movie_id}")
+async def remove_favorite(movie_id: int, current_user: dict = Depends(get_current_user)):
+    user_id = current_user.get("id") or str(current_user.get("_id"))
+    favorites = current_user.get("favorites") or []
+
+    updated = [fav for fav in favorites if fav != movie_id]
+    await users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"favorites": updated}}
+    )
+
+    return {"favorites": updated}
 
 @router.post("/logout")
 async def logout(current_user: UserOut = Depends(get_current_user), token: str = Depends(oauth2_scheme)):

@@ -22,6 +22,7 @@ function Dashboard() {
   });
   const [favoritesActive, setFavoritesActive] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
     if (token) {
@@ -37,6 +38,24 @@ function Dashboard() {
         });
     }
   }, [token]); // Ejecuta este efecto solo cuando el token cambie
+
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/users/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setFavorites(response.data.favorites || []);
+      } catch (err) {
+        console.error(err);
+        setError("No se pudieron cargar tus favoritos");
+      }
+    };
+
+    fetchProfile();
+  }, [token]);
 
   // Filtrar películas según el término de búsqueda (solo en título)
   const peliculasFiltradas = peliculas.filter((peli) => {
@@ -67,6 +86,10 @@ function Dashboard() {
     return true;
   });
 
+  const peliculasFinales = favoritesActive
+    ? peliculasFiltradas.filter((peli) => favorites.includes(peli.id))
+    : peliculasFiltradas;
+
   const handleFilterChange = ({ filterType, value }) => {
     setFilters((prev) => ({
       ...prev,
@@ -80,6 +103,26 @@ function Dashboard() {
 
   const handleCloseDetail = () => {
     setSelectedMovie(null);
+  };
+
+  const handleToggleFavorite = async (movieId) => {
+    if (!token || !movieId) return;
+
+    const isFav = favorites.includes(movieId);
+    const url = `http://127.0.0.1:8000/users/favorites/${movieId}`;
+
+    try {
+      if (isFav) {
+        await axios.delete(url, { headers: { Authorization: `Bearer ${token}` } });
+        setFavorites((prev) => prev.filter((id) => id !== movieId));
+      } else {
+        await axios.post(url, {}, { headers: { Authorization: `Bearer ${token}` } });
+        setFavorites((prev) => [...prev, movieId]);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("No se pudo actualizar favoritos");
+    }
   };
 
   if (!token) {
@@ -110,11 +153,11 @@ function Dashboard() {
 
       {error && <div className="error-banner">{error}</div>}
 
-      {peliculasFiltradas.length === 0 ? (
+      {peliculasFinales.length === 0 ? (
         <p className="empty-state">{searchTerm ? "No se encontraron películas." : "No hay películas disponibles."}</p>
       ) : (
         <main className="movies-grid">
-          {peliculasFiltradas.map((peli) => (
+          {peliculasFinales.map((peli) => (
             <div
               key={peli.id}
               className="movie-card"
@@ -151,7 +194,12 @@ function Dashboard() {
       )}
 
       {selectedMovie && (
-        <MovieDetailModal movie={selectedMovie} onClose={handleCloseDetail} />
+        <MovieDetailModal
+          movie={selectedMovie}
+          onClose={handleCloseDetail}
+          isFavorite={favorites.includes(selectedMovie.id)}
+          onToggleFavorite={handleToggleFavorite}
+        />
       )}
     </div>
   );
