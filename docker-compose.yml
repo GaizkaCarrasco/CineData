@@ -9,6 +9,36 @@ services:
     volumes:
       - mongo_data:/data/db
 
+  mysql:
+    image: mysql:8
+    container_name: cinedata-mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: movies_db
+      MYSQL_USER: movieuser
+      MYSQL_PASSWORD: moviepass
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
+  movies:
+    build: ./movieService
+    container_name: cinedata-movies
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: movies_db
+      DB_PORT: 3306
+    restart: always
+
   backend:
     build: ./userService
     container_name: cinedata-backend
@@ -27,7 +57,9 @@ services:
       - "5173:80"
     depends_on:
       - backend
+      - movies
     restart: always
 
 volumes:
   mongo_data:
+  mysql_data:
