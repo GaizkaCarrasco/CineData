@@ -133,11 +133,15 @@ function Dashboard() {
     <div className="movies-page">
       {/* BLOQUE 1: Navegación/Logo */}
       <header className="movies-topbar">
-        <Logo />
-        <FavoritesButton active={favoritesActive} onToggle={() => setFavoritesActive((prev) => !prev)} />
-        <SearchBar onSearch={setSearchTerm} />
-        <FilterBar onFilterChange={handleFilterChange} movies={peliculas} />
-        <LogoutButton />
+        <div className="topbar-main">
+          <Logo />
+          <FavoritesButton active={favoritesActive} onToggle={() => setFavoritesActive((prev) => !prev)} />
+          <SearchBar onSearch={setSearchTerm} />
+          <LogoutButton />
+        </div>
+        <div className="topbar-filters">
+          <FilterBar onFilterChange={handleFilterChange} movies={peliculas} />
+        </div>
       </header>
 
       {/* BLOQUE 2: Espacio para Futura Barra de Búsqueda */}

@@ -24,7 +24,7 @@ html, body {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
-  margin-bottom: 24px; /* Espacio generoso para separar de lo que viene abajo */
+  margin-bottom: 24px;
   position: relative;
   z-index: 10;
   gap: 65px;
@@ -32,13 +32,25 @@ html, body {
   padding-top: 12px;
 }
 
-.movies-topbar > *:first-child {
+.topbar-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 65px;
+  flex-wrap: nowrap;
+}
+
+.topbar-main > *:first-child {
   margin-right: 8px;
 }
 
-.movies-topbar > *:last-child {
+.topbar-main > *:last-child {
   margin-left: auto;
   margin-top: 13px;
+}
+
+.topbar-filters {
+  display: flex;
+  align-items: center;
 }
 
 .movies-heading h2 {
@@ -176,9 +188,62 @@ html, body {
   text-overflow: ellipsis;
 }
 
+@media (max-width: 1024px) {
+  .movies-topbar {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .topbar-main {
+    width: 100%;
+    gap: 15px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .topbar-main > *:first-child {
+    /* Logo */
+    order: 1;
+  }
+
+  .topbar-main > *:nth-child(2) {
+    /* FavoritesButton */
+    order: 2;
+  }
+
+  .topbar-main > *:nth-child(3) {
+    /* SearchBar */
+    order: 3;
+  }
+
+  .topbar-main > *:last-child {
+    /* LogoutButton */
+    order: 4;
+    margin-left: 0;
+  }
+
+  .topbar-filters {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 768px) {
   .movies-page {
-    padding: 20px;
+    padding: 16px;
+  }
+
+  .movies-topbar {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .topbar-main {
+    gap: 10px;
   }
 
   .movie-poster {
