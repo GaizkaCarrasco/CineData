@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../App.css";
 import Logo from "../components/Logo";
@@ -8,6 +8,11 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  // Limpiar sesión cuando se llega a Login
+  useEffect(() => {
+    localStorage.removeItem("token");
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
