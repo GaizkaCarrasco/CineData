@@ -13,7 +13,52 @@ CineData es un sistema integral que permite a los usuarios:
 
 ## 🏗️ Arquitectura
 
+La aplicación sigue una **arquitectura de microservicios con API Gateway centralizado** para garantizar seguridad, escalabilidad y fácil mantenimiento.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Frontend (React SPA)                      │
+│                    http://localhost:5173                     │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│              API Gateway (Express)                           │
+│              http://localhost:8080                           │
+│  • Autenticación centralizada                               │
+│  • Enrutamiento de solicitudes                              │
+│  • CORS configurado                                         │
+│  • Logging y monitoring                                     │
+└──────────────┬──────────────────────────────┬──────────────┘
+               │                              │
+       ┌───────▼──────────┐          ┌────────▼──────────┐
+       │   UserService    │          │   MovieService    │
+       │   (FastAPI)      │          │   (Express)       │
+       │   Puerto: 8000   │          │   Puerto: 3001    │
+       │                  │          │                   │
+       ├─ Autenticación   │          ├─ Catálogo        │
+       ├─ Usuarios        │          ├─ Búsqueda        │
+       ├─ Favoritos       │          └─ Filtros         │
+       └─────────┬────────┘                   │
+                 │                             │
+         ┌───────▼──────────┐       ┌─────────▼──────────┐
+         │    MongoDB       │       │      MySQL 8       │
+         │  Puerto: 27017   │       │    Puerto: 3307    │
+         └──────────────────┘       └────────────────────┘
+```
+
 ### Servicios Principales
+
+#### **API Gateway** (Nuevo - Punto de entrada único)
+- **Stack**: Node.js + Express
+- **Funcionalidades**:
+  - Proxy inverso para todas las APIs
+  - Autenticación JWT centralizada
+  - CORS configurado
+  - Logging de solicitudes
+  - Health checks
+- **Puerto**: `8080`
+- **Endpoints**: `/health`, `/info`
 
 #### **UserService** (Backend API)
 - **Stack**: FastAPI + Motor (async MongoDB driver) + Python 3.10+
@@ -23,8 +68,8 @@ CineData es un sistema integral que permite a los usuarios:
   - Sistema de favoritos por usuario
   - Panel administrativo para gestionar usuarios
   - Tokens revocados para logout seguro
-- **Puerto**: `8000`
-- **Documentación API**: `http://localhost:8000/docs` (Swagger UI)
+- **Puerto interno**: `8000` (no expuesto al host)
+- **Documentación API**: `http://localhost:8000/docs` (Swagger UI - acceso interno)
 
 #### **MovieService** (Backend API)
 - **Stack**: Node.js + Express + MySQL 8
@@ -33,7 +78,7 @@ CineData es un sistema integral que permite a los usuarios:
   - API REST para consultar películas
   - Filtrado por género y año
   - Búsqueda por título
-- **Puerto**: `3001`
+- **Puerto interno**: `3001` (no expuesto al host)
 
 #### **Frontend** (Interfaz de Usuario)
 - **Stack**: React 19 + Vite + Nginx + React Router v7
@@ -46,6 +91,7 @@ CineData es un sistema integral que permite a los usuarios:
   - `FavoritesButton`: Gestión de favoritos
   - `MovieDetailModal`: Modal con detalles de película
   - `ProtectedRoute` y `AdminRoute`: Control de acceso
+- **Servicios**: `apiClient.js` para cliente HTTP centralizado
 - **Estilos**: CSS modular por componente
 - **Puerto**: `5173` (desarrollo) / `80` (producción con Nginx)
 
@@ -124,14 +170,23 @@ CineData/
 │   │   │   ├── Login.jsx
 │   │   │   ├── Register.jsx
 │   │   │   └── AdminUsers.jsx
+│   │   ├── services/           # Servicios API
+│   │   │   ├── apiClient.js    # Cliente HTTP centralizado
+│   │   │   └── api.js          # Funciones de API
 │   │   ├── styles/             # Estilos CSS modular
 │   │   ├── App.jsx
 │   │   └── main.jsx
 │   ├── package.json
 │   ├── vite.config.js
 │   ├── nginx.conf
+│   ├── .env                    # Variables de entorno
 │   ├── Dockerfile
 │   └── index.html
+├── gatewayService/             # API Gateway (Express) ⭐ NUEVO
+│   ├── index.js               # Servidor Gateway
+│   ├── package.json           # Dependencias
+│   ├── Dockerfile
+│   └── README.md
 ├── userService/                # API de usuarios (FastAPI)
 │   ├── app/
 │   │   ├── main.py            # Punto de entrada
@@ -185,15 +240,21 @@ docker compose up --build
 **Servicios que se iniciarán**:
 - ✅ MongoDB (puerto 27017)
 - ✅ MySQL 8 (puerto 3307)
-- ✅ UserService API (puerto 8000)
-- ✅ MovieService API (puerto 3001)
+- ✅ UserService API (puerto 8000 - interno)
+- ✅ MovieService API (puerto 3001 - interno)
+- ✅ **API Gateway** (puerto 8080 - punto de entrada único)
 - ✅ Frontend con Nginx (puerto 5173)
 
 **URLs de acceso**:
 | Servicio | URL |
 |----------|-----|
 | **Frontend** | http://localhost:5173 |
+| **API Gateway (Punto de entrada único)** | http://localhost:8080 |
+| **Health Check** | http://localhost:8080/health |
+| **Info del Gateway** | http://localhost:8080/info |
 | **Swagger (Documentación API)** | http://localhost:8000/docs |
+
+**Nota**: Los servicios UserService (8000) y MovieService (3001) no están expuestos directamente al host. Todas las solicitudes de API deben pasar por el API Gateway (8080). Sin embargo, la documentación de Swagger en UserService se mantiene accesible en localhost:8000/docs para referencia técnica.
 
 **Comandos útiles**:
 ```powershell
@@ -278,37 +339,77 @@ npm run dev
 - Los cambios se reflejan automáticamente en el navegador
 - Los servidores Express y FastAPI también soportan reload automático
 
+#### API Gateway (Express)
+
+```powershell
+# Navegar a la carpeta
+cd gatewayService
+
+# Instalar dependencias
+npm install
+
+# Ejecutar servidor
+npm start
+
+# El gateway estará disponible en http://localhost:8080
+# Health check: http://localhost:8080/health
+```
+
 ## 📚 Documentación de Endpoints
 
-### UserService (FastAPI)
-La documentación interactiva está disponible en: **http://localhost:8000/docs**
+### 🔌 API Gateway (Punto de Entrada Único)
+**Base URL**: `http://localhost:8080`
 
-#### Endpoints Principales:
+El gateway actúa como proxy centralizado para todos los servicios:
+
+**Rutas Públicas** (sin autenticación):
 - `POST /auth/register` - Registrar nuevo usuario
-- `POST /auth/login` - Iniciar sesión
+- `POST /auth/login` - Iniciar sesión (devuelve JWT)
+- `GET /movies` - Listar todas las películas
+- `GET /movies?search=...` - Buscar películas por título
+- `GET /movies?genre=...&year=...` - Filtrar películas
+
+**Rutas Protegidas** (requieren JWT):
 - `POST /auth/logout` - Cerrar sesión
 - `GET /users/me` - Obtener perfil del usuario actual
 - `POST /favorites/{movie_id}` - Guardar película como favorita
 - `DELETE /favorites/{movie_id}` - Eliminar película de favoritos
 - `GET /favorites` - Obtener lista de favoritos del usuario
-- `GET /admin/users` - Listar todos los usuarios (Admin)
-- `DELETE /admin/users/{user_id}` - Eliminar usuario (Admin)
+- `GET /admin/users` - Listar todos los usuarios (solo admin)
+- `DELETE /admin/users/{user_id}` - Eliminar usuario (solo admin)
 
-### MovieService (Express)
-Endpoints disponibles:
-- `GET /api/movies` - Listar todas las películas
-- `GET /api/movies/:id` - Obtener detalles de una película
-- `GET /api/movies/filter?genre=...&year=...` - Filtrar películas
-- `GET /api/movies/search?title=...` - Buscar películas por título
+**Rutas de Información**:
+- `GET /health` - Health check del gateway
+- `GET /info` - Información del gateway y servicios
+- `GET /docs` - Redirección a la documentación de Swagger (http://localhost:8000/docs)
+
+### UserService (FastAPI) - Documentación Disponible
+**Base URL**: `http://localhost:8000`
+
+**Documentación Interactiva**: 
+- Swagger UI: **http://localhost:8000/docs** ✅
+- ReDoc: **http://localhost:8000/redoc**
+
+Aunque UserService está diseñado para ser accedido internamente a través del API Gateway, la documentación de Swagger se mantiene accesible en localhost:8000/docs para propósitos de referencia y desarrollo.
+
+### MovieService (Express) - Acceso Interno
+**Base URL**: `http://localhost:3001` (solo interno - usar Gateway desde cliente)
+
+Endpoints:
+- `GET /movies` - Listar todas las películas
+- `GET /movies/:id` - Obtener detalles de una película
+- `GET /movies?genre=...&year=...` - Filtrar películas
 
 ## 🔐 Seguridad
 
-- **Autenticación JWT**: Todos los endpoints protegidos requieren token JWT
+- **API Gateway**: Punto de entrada único centralizado
+- **Autenticación JWT**: Validación en el gateway para todas las rutas protegidas
 - **Hashing de Contraseñas**: Bcrypt con salt para almacenar contraseñas seguras
-- **CORS Habilitado**: Comunicación segura entre frontend y backend
+- **CORS Habilitado**: Comunicación segura entre frontend y gateway
 - **Tokens Revocados**: Control de logout mediante lista de tokens inválidos
 - **Validación de Entrada**: Email y contraseña validados en esquemas
 - **Rutas Protegidas**: Componentes de React con ProtectedRoute y AdminRoute
+- **Servicios Internos**: UserService y MovieService no expuestos directamente
 
 ## 🧪 Características de Desarrollo
 

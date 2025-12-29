@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import "../App.css";
 import Logo from "../components/Logo";
 
+// Usar el API Gateway como punto de entrada
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+
 function Login() {
   const [email, setEmail] = useState("@gmail.com");
   const [password, setPassword] = useState("");
@@ -24,7 +27,7 @@ function Login() {
       params.append("username", email); // backend expects 'username' field
       params.append("password", password);
 
-      const response = await fetch("http://127.0.0.1:8000/users/login", {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: params.toString(),
@@ -41,7 +44,7 @@ function Login() {
 
       // Comprobar role del usuario y redirigir según corresponda
       try {
-        const meRes = await fetch("http://127.0.0.1:8000/users/me", {
+        const meRes = await fetch(`${API_URL}/users/me`, {
           headers: { Authorization: `Bearer ${data.access_token}` },
         });
         if (meRes.ok) {

@@ -8,6 +8,9 @@ import MovieDetailModal from "../components/MovieDetailModal";
 import axios from "axios";
 import "../styles/Movies.css";
 
+// Usar el API Gateway como punto de entrada
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+
 function Dashboard() {
   const token = localStorage.getItem("token");
 
@@ -28,7 +31,7 @@ function Dashboard() {
     if (token) {
       // Realiza la solicitud solo si el usuario está autenticado
       axios
-        .get("http://localhost:3001/movies")
+        .get(`${API_URL}/movies`)
         .then((response) => {
           setPeliculas(response.data);
         })
@@ -44,7 +47,7 @@ function Dashboard() {
 
     const fetchProfile = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/users/me", {
+        const response = await axios.get(`${API_URL}/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setFavorites(response.data.favorites || []);
@@ -109,7 +112,7 @@ function Dashboard() {
     if (!token || !movieId) return;
 
     const isFav = favorites.includes(movieId);
-    const url = `http://127.0.0.1:8000/users/favorites/${movieId}`;
+    const url = `${API_URL}/favorites/${movieId}`;
 
     try {
       if (isFav) {

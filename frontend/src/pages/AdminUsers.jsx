@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import LogoutButton from "../components/LogoutButton";
 import Logo from "../components/Logo";
-
+// Usar el API Gateway como punto de entrada
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
@@ -14,7 +15,7 @@ export default function AdminUsers() {
       return;
     }
 
-    fetch("http://127.0.0.1:8000/admin/users", {
+    fetch(`${API_URL}/admin/users`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -31,7 +32,7 @@ export default function AdminUsers() {
     const token = localStorage.getItem("token");
     
     try {
-      const response = await fetch(`http://127.0.0.1:8000/users/delete/${user_id}`, {
+      const response = await fetch(`${API_URL}/admin/users/${user_id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

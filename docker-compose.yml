@@ -27,8 +27,8 @@ services:
   movies:
     build: ./movieService
     container_name: cinedata-movies
-    ports:
-      - "3001:3001"
+    expose:
+      - "3001"
     depends_on:
       - mysql
     environment:
@@ -50,14 +50,29 @@ services:
       - MONGO_URL=mongodb://mongo:27017
     restart: always
 
+  gateway:
+    build: ./gatewayService
+    container_name: cinedata-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - users
+      - movies
+    environment:
+      - USER_SERVICE_URL=http://users:8000
+      - MOVIE_SERVICE_URL=http://movies:3001
+      - NODE_ENV=production
+    restart: always
+
   frontend:
     build: ./frontend
     container_name: cinedata-frontend
     ports:
       - "5173:80"
     depends_on:
-      - users
-      - movies
+      - gateway
+    environment:
+      - VITE_API_URL=http://localhost:8080
     restart: always
 
 volumes:

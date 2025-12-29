@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../App.css"; // Usa el mismo CSS del login
 import Logo from "../components/Logo";
 
+// Usar el API Gateway como punto de entrada
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+
 export default function Register() {
   const [form, setForm] = useState({
     username: "",
@@ -31,8 +34,8 @@ export default function Register() {
     try {
       // Elegir endpoint según checkbox
       const url = isAdmin
-        ? "http://127.0.0.1:8000/admin/open-create-admin"
-        : "http://127.0.0.1:8000/users/register";
+        ? `${API_URL}/admin/open-create-admin`
+        : `${API_URL}/auth/register`;
 
       // Payload: enviar sólo username/email/password (sin isAdmin)
       const payload = {

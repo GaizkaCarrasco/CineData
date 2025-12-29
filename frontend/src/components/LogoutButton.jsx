@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// Usar el API Gateway como punto de entrada
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+
 export default function LogoutButton() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -13,7 +16,7 @@ export default function LogoutButton() {
 
     try {
       if (token) {
-        await fetch("http://127.0.0.1:8000/users/logout", {
+        await fetch(`${API_URL}/auth/logout`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
         });

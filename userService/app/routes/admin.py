@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.auth import require_role, hash_password
 from app.database import users_collection
 from app.schemas import UserCreate
+from bson import ObjectId
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -88,3 +89,18 @@ async def list_non_admin_users(current_admin=Depends(require_role("admin"))):
 
     return users
 
+
+@router.delete("/users/{user_id}")
+async def delete_user_from_admin(user_id: str, current_admin: dict = Depends(require_role("admin"))):
+    """Delete a user (only admins can do this)"""
+    # No permitir que un admin se borre a sí mismo
+    if str(current_admin.get("_id")) == user_id or current_admin.get("id") == user_id:
+        raise HTTPException(status_code=400, detail="No puedes borrarte a ti mismo")
+    
+    try:
+        result = await users_collection.delete_one({"_id": ObjectId(user_id)})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        return {"message": "Usuario borrado correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Error al borrar el usuario")
