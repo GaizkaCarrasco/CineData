@@ -31,16 +31,16 @@ La aplicación sigue una **arquitectura de microservicios con API Gateway centra
 │  • Logging y monitoring                                     │
 └──────────────┬──────────────────────────────┬──────────────┘
                │                              │
-       ┌───────▼──────────┐          ┌────────▼──────────┐
-       │   UserService    │          │   MovieService    │
-       │   (FastAPI)      │          │   (Express)       │
-       │   Puerto: 8000   │          │   Puerto: 3001    │
-       │                  │          │                   │
+       ┌───────▼──────────┐          ┌────────▼─────────┐
+       │   UserService    │          │   MovieService   │
+       │   (FastAPI)      │          │   (Express)      │
+       │   Puerto: 8000   │          │   Puerto: 3001   │
+       │                  │          │                  │
        ├─ Autenticación   │          ├─ Catálogo        │
        ├─ Usuarios        │          ├─ Búsqueda        │
-       ├─ Favoritos       │          └─ Filtros         │
-       └─────────┬────────┘                   │
-                 │                             │
+       ├─ Favoritos       │          ├─ Filtros         │
+       └─────────┬────────┘          └────────┬─────────┘  
+                 │                            │
          ┌───────▼──────────┐       ┌─────────▼──────────┐
          │    MongoDB       │       │      MySQL 8       │
          │  Puerto: 27017   │       │    Puerto: 3307    │
@@ -52,13 +52,37 @@ La aplicación sigue una **arquitectura de microservicios con API Gateway centra
 #### **API Gateway** (Nuevo - Punto de entrada único)
 - **Stack**: Node.js + Express
 - **Funcionalidades**:
-  - Proxy inverso para todas las APIs
-  - Autenticación JWT centralizada
-  - CORS configurado
-  - Logging de solicitudes
-  - Health checks
+  - Proxy inverso centralizado para todas las APIs
+  - Autenticación JWT centralizada y validación de tokens
+  - CORS configurado para el frontend
+  - Logging de solicitudes con Morgan
+  - Health checks y endpoints de información
+  - Mapeo inteligente de rutas (e.g., `/auth/*` → `/users/*`)
+  - Manejo de rutas públicas y protegidas
 - **Puerto**: `8080`
-- **Endpoints**: `/health`, `/info`
+- **Endpoints principales**:
+  - `GET /health`: Estado del gateway
+  - `GET /info`: Información de servicios
+  - `POST /auth/register` y `POST /auth/login`: Autenticación pública
+  - `POST /admin/open-create-admin`: Crear admin inicial (público)
+  - Todas las demás rutas requieren autenticación JWT
+
+**Configuración de rutas en el Gateway:**
+```javascript
+// Rutas públicas (sin autenticación)
+POST /auth/register     → POST /users/register
+POST /auth/login        → POST /users/login
+GET  /movies/*          → Catálogo de películas
+POST /admin/open-create-admin → POST /admin/open-create-admin
+
+// Rutas protegidas (requieren JWT)
+GET  /users/me          → Perfil del usuario actual
+POST /users/favorites/{id}  → Agregar favorito
+DELETE /users/favorites/{id} → Remover favorito
+DELETE /users/delete/{id}   → Eliminar usuario (solo admin)
+GET  /admin/users       → Listar usuarios (solo admin)
+DELETE /admin/users/{id} → Eliminar usuario desde admin (solo admin)
+```
 
 #### **UserService** (Backend API)
 - **Stack**: FastAPI + Motor (async MongoDB driver) + Python 3.10+
@@ -255,6 +279,59 @@ docker compose up --build
 | **Swagger (Documentación API)** | http://localhost:8000/docs |
 
 **Nota**: Los servicios UserService (8000) y MovieService (3001) no están expuestos directamente al host. Todas las solicitudes de API deben pasar por el API Gateway (8080). Sin embargo, la documentación de Swagger en UserService se mantiene accesible en localhost:8000/docs para referencia técnica.
+
+### Flujo de Autenticación y Autorización con API Gateway
+
+El API Gateway implementa un sistema centralizado de autenticación JWT:
+
+```
+┌─────────────┐
+│  Frontend   │ (React en localhost:5173)
+└──────┬──────┘
+       │ POST /auth/register (email, password)
+       ▼
+┌─────────────────────────────────────────┐
+│       API Gateway (Express)              │
+│       localhost:8080                     │
+│  • Valida si es ruta pública            │
+│  • Mapea /auth → /users                 │
+│  • Envía a UserService                  │
+└──────┬──────────────────────────────────┘
+       │ POST /users/register
+       ▼
+┌──────────────────────────────────────────┐
+│  UserService (FastAPI)                   │
+│  localhost:8000 (interno)                │
+│  • Hash la contraseña con bcrypt         │
+│  • Guarda en MongoDB                     │
+│  • Retorna token JWT                     │
+└──────┬───────────────────────────────────┘
+       │ JWT Token
+       ▼
+┌─────────────────────────────────────────┐
+│  API Gateway (Responde)                  │
+│  • Retorna token al frontend             │
+└──────┬──────────────────────────────────┘
+       │ localStorage.setItem('token', jwt)
+       ▼
+┌─────────────┐
+│  Frontend   │ Ahora puede hacer requests autenticadas
+│ (Protegido) │ con: Authorization: Bearer <token>
+└─────────────┘
+```
+
+**Rutas públicas (sin validación JWT)**:
+- `POST /auth/register` - Registro de usuarios
+- `POST /auth/login` - Login de usuarios
+- `GET /movies/*` - Catálogo de películas
+- `POST /admin/open-create-admin` - Crear admin inicial
+
+**Rutas protegidas (requieren JWT válido)**:
+- `GET /users/me` - Perfil del usuario actual
+- `POST /users/favorites/{id}` - Agregar favorito
+- `DELETE /users/favorites/{id}` - Remover favorito
+- `GET /admin/users` - Listar usuarios (solo admin)
+- `DELETE /admin/users/{id}` - Eliminar usuario (solo admin)
 
 **Comandos útiles**:
 ```powershell
