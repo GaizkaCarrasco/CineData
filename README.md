@@ -49,7 +49,7 @@ La aplicación sigue una **arquitectura de microservicios con API Gateway centra
 
 ### Servicios Principales
 
-#### **API Gateway** (Nuevo - Punto de entrada único)
+#### **API Gateway** (Punto de entrada único)
 - **Stack**: Node.js + Express
 - **Funcionalidades**:
   - Proxy inverso centralizado para todas las APIs
@@ -206,7 +206,7 @@ CineData/
 │   ├── .env                    # Variables de entorno
 │   ├── Dockerfile
 │   └── index.html
-├── gatewayService/             # API Gateway (Express) ⭐ NUEVO
+├── gatewayService/             # API Gateway (Express) 
 │   ├── index.js               # Servidor Gateway
 │   ├── package.json           # Dependencias
 │   ├── Dockerfile
